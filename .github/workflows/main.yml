@@ -1,24 +1,24 @@
 ---
-name: Build
+name: Build & Release
 
 on:
   pull_request:
   push:
     branches:
       - master
- # schedule:
- #   - cron: "10 2 * * 0"
+  schedule:
+   - cron: "10 2 * * 0"
 
 jobs:
   # Test the image builds and works correctly.
   test:
-    name: Test
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Test building image.
+      - name: Building image.
         run: docker build -t inventoryapi .
 
   # If on master branch, build and release image.
