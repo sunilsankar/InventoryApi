@@ -1,24 +1,24 @@
 ---
-name: Build
+name: Build & Release
 
 on:
   pull_request:
   push:
     branches:
       - master
- # schedule:
- #   - cron: "10 2 * * 0"
+  schedule:
+   - cron: "00 2,14 * * *"
 
 jobs:
   # Test the image builds and works correctly.
   test:
-    name: Test
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Test building image.
+      - name: Building image.
         run: docker build -t inventoryapi .
 
   # If on master branch, build and release image.
@@ -39,11 +39,14 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push image.
+      - name: Build and push
+        id: docker_build
         uses: docker/build-push-action@v2
         with:
           context: ./
-          file: Dockerfile
-          platforms: linux/amd64
+          file: ./Dockerfile
           push: true
-          tags: ${{ github.repository }}:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/inventoryapi:latest
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
